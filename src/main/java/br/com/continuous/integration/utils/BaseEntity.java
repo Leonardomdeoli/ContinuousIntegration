@@ -5,7 +5,7 @@ import java.io.Serializable;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
-import net.minidev.json.annotate.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @author Leonardo Mendes
