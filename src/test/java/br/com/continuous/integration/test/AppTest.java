@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
@@ -25,6 +26,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import br.com.continuous.integration.endereco.Uf;
 import br.com.continuous.integration.user.UsuarioController;
 import br.com.continuous.integration.utils.ServicePath;
 
@@ -32,6 +34,8 @@ import br.com.continuous.integration.utils.ServicePath;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class AppTest{
+	
+	private static final Logger LOGGER = Logger.getLogger(AppTest.class);
 
 	@Autowired
 	private UsuarioController usuarioController;
@@ -78,22 +82,27 @@ public class AppTest{
 		mockMvc.perform(get(ServicePath.USER_PATH + "/id/1")).andDo(print());
 
 	}
+	
+	@Test
+	public void testUf() throws Exception {
+		LOGGER.info(Uf.getSerialversionuid());
+	}
 
 	private byte[] buildJson() throws JSONException {
 		
 		JSONObject ufJson = new  JSONObject();
 		ufJson.put("id", 13);
-		ufJson.put("sigla", "MG");
+		ufJson.put("sigla", "SP");
 		
 		JSONObject cidadeJson = new  JSONObject();
 		cidadeJson.put("id", 12);
-		cidadeJson.put("nome", "Uberlândia");
+		cidadeJson.put("nome", "São Paulo");
 		cidadeJson.put("uf", ufJson);
 		
 		JSONObject bairroJson = new  JSONObject();
 		bairroJson.put("cidade", cidadeJson);
 		bairroJson.put("id", 11);
-		bairroJson.put("nome", "São Jorge");
+		bairroJson.put("nome", "São Paulo");
 		
 		JSONObject enderecoJson = new  JSONObject();
 		enderecoJson.put("id", 10);
