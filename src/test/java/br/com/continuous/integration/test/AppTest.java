@@ -3,8 +3,10 @@ package br.com.continuous.integration.test;
 import static org.hamcrest.core.Is.is;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -30,7 +32,7 @@ import br.com.continuous.integration.endereco.Uf;
 import br.com.continuous.integration.user.UsuarioController;
 import br.com.continuous.integration.utils.ServicePath;
 
-@FixMethodOrder(MethodSorters.JVM)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class AppTest{
@@ -58,25 +60,35 @@ public class AppTest{
 	}
 
 	@Test
-	public void enviandoUmJsonValido() throws Exception {
+	public void salvandoUsuarioOk() throws Exception {
 		mockMvc.perform(post(ServicePath.USER_PATH + "/")
 						.contentType(APPLICATION_JSON)
-						.content(buildJson()))
+						.content(buildJsonAsByte(false)))
 				.andDo(print())
 				.andExpect(status().isOk());
 
 	}
-
+	
 	@Test
-	public void buscandoUsuario() throws Exception {
+	public void buscandoUsuarioOk() throws Exception {
 		mockMvc.perform(get(ServicePath.USER_PATH + "/id/10")
 						.accept(APPLICATION_JSON))
 				.andDo(print())
 				.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JSON_UTF8))
-				.andExpect(jsonPath("nome", is("Leonardo Mendes de Oliveira")))
+				.andExpect(jsonPath("nome", is("leonardo")))
 				.andExpect(jsonPath("email", is("leonardo@gmail.com")));
 	}
-
+	
+	@Test
+	public void atualizandoUsuarioOk() throws Exception {
+		mockMvc.perform(put(ServicePath.USER_PATH + "/")
+				.contentType(APPLICATION_JSON)
+				.content(buildJsonAsByte(true)))
+		.andDo(print())
+		.andExpect(status().isOk());
+		
+	}
+	
 	@Test
 	public void printInfo() throws Exception {
 		mockMvc.perform(get(ServicePath.USER_PATH + "/id/1")).andDo(print());
@@ -87,8 +99,24 @@ public class AppTest{
 	public void testUf() throws Exception {
 		LOGGER.info(Uf.getSerialversionuid());
 	}
+	
+	@Test
+	public void removendoUsuarioOk() throws Exception {
+		mockMvc.perform(delete(ServicePath.USER_PATH + "/id/10")
+				.accept(APPLICATION_JSON))
+		.andDo(print())
+		.andExpect(status().isOk());
+	}
+	
+	@Test
+	public void removendoUsuarioBadRequest() throws Exception {
+		mockMvc.perform(delete(ServicePath.USER_PATH + "/id/67")
+				.accept(APPLICATION_JSON))
+		.andDo(print())
+		.andExpect(status().isBadRequest());
+	}
 
-	private byte[] buildJson() throws JSONException {
+	private byte[] buildJsonAsByte(boolean isUpdate) throws JSONException {
 		
 		JSONObject ufJson = new  JSONObject();
 		ufJson.put("id", 13);
@@ -111,6 +139,11 @@ public class AppTest{
 		enderecoJson.put("bairro", bairroJson);
 		
 		JSONObject jsonObject = new JSONObject();
+		
+		if(isUpdate) {
+			jsonObject.put("id", 10);
+		}
+		
 		jsonObject.put("nome", "leonardo");
 		jsonObject.put("telefone", "99143829");
 		jsonObject.put("email", "leonardo@gmail.com");
